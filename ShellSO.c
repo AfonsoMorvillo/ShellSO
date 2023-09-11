@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #define BUF_SIZE 100
 #define CMD_MAX 11 // Quantidade de palavras em um comando
@@ -14,6 +16,8 @@ int main()
 
     char *cmd[CMD_MAX];
     char *token;
+
+    pid_t pid;
 
     char dir[100]; // Para a leitura do diretório atual
     int i;
@@ -36,19 +40,26 @@ int main()
         if (strcmp(cmd[0], "exit") == 0)
             break; // Comando exit
 
-        for (i = 0; i < CMD_MAX; i++)
+        pid = fork();
+
+        waitpid(pid, NULL, 0);
+
+        if (pid == 0)
         {
-            if (cmd[i] != NULL)
+
+            for (i = 0; i < CMD_MAX; i++)
             {
-                printf("Lido: %s \n", cmd[i]);
+                if (cmd[i] != NULL)
+                {
+                    printf("Lido: %s \n", cmd[i]);
+                }
+            }
+
+            for (i = 0; i < CMD_MAX; i++) // limpa o vetor
+            {
+                cmd[i] = NULL;
             }
         }
-
-        for (i = 0; i < CMD_MAX; i++) // limpa o vetor
-        {
-            cmd[i] = NULL;
-        }
-
     }
 
     puts("PROGRAMA ENCERRADO");
